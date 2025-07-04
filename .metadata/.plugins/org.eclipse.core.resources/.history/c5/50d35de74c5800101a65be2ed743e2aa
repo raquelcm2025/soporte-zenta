@@ -1,0 +1,33 @@
+package com.sistema.zenta.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sistema.zenta.model.Diagnostico;
+import com.sistema.zenta.model.Observacion;
+import com.sistema.zenta.repository.ObservacionRepository;
+
+@Service
+public class ObservacionService {
+
+	@Autowired
+    private ObservacionRepository repo;
+
+    public Observacion guardar(Observacion observacion) {
+        return repo.save(observacion);
+    }
+
+    public List<Observacion> listar() {
+        return repo.findAll();
+    }
+
+    public Observacion obtenerPorId(Integer id) {
+        return repo.findById(id).orElse(null);
+    }
+
+    public Observacion obtenerPorDiagnostico(Diagnostico diag) {
+        return repo.findByDiagnostico(diag);
+    }
+}

@@ -1,0 +1,121 @@
+package com.zenta.zenta.controller;
+
+import com.zenta.zenta.entity.Diagnostico;
+import com.zenta.zenta.entity.Ticket;
+import com.zenta.zenta.entity.User;
+import com.zenta.zenta.services.DiagnosticoService;
+import com.zenta.zenta.services.TicketService;
+import com.zenta.zenta.services.UserServices;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
+
+@Controller
+@RequestMapping("/diagnostico")
+public class DiagnosticoController {
+
+    @Autowired
+    private DiagnosticoService diagnosticoService;
+
+    @Autowired
+    private TicketService ticketService;
+
+    @Autowired
+    private UserServices usuarioService;
+
+    //  Formulario vacío
+    @GetMapping("/nuevo")
+    public String nuevoDiagnosticoVacio(Model model, HttpSession session) {
+        Diagnostico diagnostico = new Diagnostico();
+        User responsable = (User) session.getAttribute("usuarioLogueado");
+
+        if (responsable == null) {
+            return "redirect:/login";
+        }
+
+        diagnostico.setResponsable(responsable);
+
+        model.addAttribute("diagnostico", diagnostico);
+        model.addAttribute("listaTickets", ticketService.listar());
+        return "diagnostico_form";
+    }
+
+
+    //  Formulario con ticket seleccionado
+    @GetMapping("/nuevo/{id}")
+    public String nuevoDiagnosticoConTicket(@PathVariable Integer id, Model model, HttpSession session) {
+        Diagnostico diagnostico = new Diagnostico();
+        Ticket ticket = ticketService.obtenerPorId(id);
+        User responsable = (User) session.getAttribute("usuarioLogueado");
+
+        diagnostico.setTicket(ticket);
+        diagnostico.setResponsable(responsable);
+
+        model.addAttribute("diagnostico", diagnostico);
+        model.addAttribute("listaTickets", ticketService.listar());
+        return "diagnostico_form";
+    }
+
+    @PostMapping("/guardar")
+    public String guardar(@ModelAttribute("diagnostico") Diagnostico diagnostico, Model model, HttpSession session) {
+        // Obtener ticket completo
+        Integer idTicket = diagnostico.getTicket().getId();
+        Ticket ticket = ticketService.obtenerPorId(idTicket);
+        diagnostico.setTicket(ticket);
+
+        // Obtener usuario logueado desde sesión
+        User responsable = (User) session.getAttribute("usuarioLogueado");
+
+        if (responsable == null) {
+            return "redirect:/login";
+        }
+
+        // Buscar el usuario en la BD (muy recomendable)
+        User usuarioBD = usuarioService.obtenerPorId(responsable.getId());
+        diagnostico.setResponsable(usuarioBD);
+
+        if (diagnostico.getGarantia() != null && diagnostico.getGarantia()) {
+            ticket.setEstado("Derivado");
+            ticketService.guardar(ticket);
+            diagnosticoService.guardar(diagnostico);
+            model.addAttribute("mensaje", "Este ticket fue derivado al proveedor o encargado de marca.");
+            return "diagnostico_derivado";
+        } else {
+            ticket.setEstado("En proceso");
+            ticketService.guardar(ticket);
+            diagnosticoService.guardar(diagnostico);
+            return "redirect:/";
+        }
+    }
+
+
+
+
+    // Buscar tickets con filtros
+    @GetMapping("/buscar")
+    public String buscarTickets(
+            @RequestParam(required = false) String numero,
+            @RequestParam(required = false) String prioridad,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            Model model,
+            HttpSession session) {
+
+        List<Ticket> listaTickets = ticketService.filtrarTickets(numero, prioridad, estado, fecha);
+        Diagnostico diagnostico = new Diagnostico();
+
+        User responsable = (User) session.getAttribute("usuarioLogueado");
+        diagnostico.setResponsable(responsable);
+
+        model.addAttribute("diagnostico", diagnostico);
+        model.addAttribute("listaTickets", listaTickets);
+        return "diagnostico_form";
+    }
+}

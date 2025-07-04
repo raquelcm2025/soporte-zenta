@@ -1,0 +1,37 @@
+package com.zenta.zenta.services;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.zenta.zenta.entity.Diagnostico;
+import com.zenta.zenta.entity.Solucion;
+import com.zenta.zenta.repository.SolucionRepository;
+
+@Service
+public class SolucionService {
+
+    @Autowired
+    private SolucionRepository solucionRepository;
+
+    public void guardar(Solucion solucion) {
+        solucionRepository.save(solucion);
+    }
+
+    public List<Solucion> listar() {
+        return solucionRepository.findAll();
+    }
+
+    public Solucion obtenerPorId(Integer id) {
+        return solucionRepository.findById(id).orElse(null);
+    }
+
+    public void eliminar(Integer id) {
+        solucionRepository.deleteById(id);
+    }
+
+    public Solucion obtenerPorDiagnostico(Diagnostico diagnostico) {
+        return solucionRepository.findByDiagnostico(diagnostico);
+    }
+}

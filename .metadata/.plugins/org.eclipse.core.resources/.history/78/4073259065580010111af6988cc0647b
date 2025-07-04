@@ -1,0 +1,27 @@
+package com.zenta.zenta.services;
+
+import com.zenta.zenta.entity.Informe;
+import com.zenta.zenta.repository.InformeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class InformeService {
+
+    @Autowired
+    private InformeRepository informeRepository;
+
+    public void guardar(Informe informe) {
+        informeRepository.save(informe);
+    }
+
+    public List<Informe> listar() {
+        return informeRepository.findAll();
+    }
+
+    public Informe obtenerPorId(Integer id) {
+        return informeRepository.findById(id).orElse(null);
+    }
+}

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Registrar Diagnóstico</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+		*{
+					margin: 0;
+					padding: 0;
+					box-sizing: border-box;
+					font-family: "Raleway", sans-serif;
+				}
+        .zenta-label {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .readonly-field {
+            background-color: #dee2e6;
+            color: #000;
+        }
+
+        .btn-zenta {
+            background-color: #e83e8c;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-negro {
+            background-color: #000;
+            color: white;
+            font-weight: bold;
+        }
+
+        .zenta-titulo {
+            color: #e83e8c;
+            font-weight: bold;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body class="bg-white text-dark">
+
+<div class="container mt-5 p-4 border rounded bg-light shadow form-container">
+    <h4 class="mb-4 zenta-titulo text-center">Registrar Diagnóstico </h4>
+
+	<div class="d-flex justify-content-end mb-3">
+		<button class="btn btn-negro" data-bs-toggle="modal" data-bs-target="#modalBuscarTicket">
+		  <i class="bi bi-search"></i> Buscar Ticket
+		</button>
+		
+
+	</div>
+
+    <form th:action="@{/diagnostico/guardar}" th:object="${diagnostico}" method="post">
+        <!-- N° Ticket, Estado -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="zenta-label">N° de Ticket:</label>
+				<input type="text" class="form-control readonly-field"
+				       th:value="${diagnostico.ticket != null ? diagnostico.ticket.numero : ''}" readonly>
+
+                <input type="hidden" th:field="*{ticket.id}" />
+            </div>
+            <div class="col-md-6">
+                <label class="zenta-label">Estado:</label>
+				<input type="text" class="form-control readonly-field"
+				       th:value="${diagnostico.ticket != null ? diagnostico.ticket.estado : ''}" readonly>
+
+            </div>
+        </div>
+
+        <!-- Prioridad, Garantía -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="zenta-label">Prioridad:</label>
+				<input type="text" class="form-control readonly-field"
+				       th:value="${diagnostico.ticket?.prioridad != null ? #strings.capitalize(diagnostico.ticket.prioridad.toLowerCase()) : ''}" readonly>
+
+            </div>
+            <div class="col-md-6">
+                <label class="zenta-label">Garantía:</label>
+                <select th:field="*{garantia}" class="form-select">
+                    <option value="false">No</option>
+                    <option value="true">Sí</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Fecha, Responsable -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="zenta-label">Fecha y Hora:</label>
+                <input type="text" class="form-control readonly-field"
+                       th:value="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}" readonly>
+            </div>
+            <div class="col-md-6">
+                <label class="zenta-label">Responsable:</label>
+				<input type="text" class="form-control readonly-field"
+				       th:value="${diagnostico.responsable != null ? diagnostico.responsable.nombre + ' ' + diagnostico.responsable.apellido : ''}"
+				       readonly>
+
+                <input type="hidden" th:field="*{responsable.id}" />
+            </div>
+        </div>
+
+        <!-- Error -->
+        <div class="mb-3">
+            <label class="zenta-label">Error:</label>
+            <textarea class="form-control readonly-field" readonly rows="3"
+                      th:text="${diagnostico.ticket.error}"></textarea>
+        </div>
+
+        <!-- Diagnóstico -->
+        <div class="mb-3">
+            <label class="zenta-label">Diagnóstico:</label>
+            <textarea th:field="*{descripcionDiagnostico}" class="form-control" rows="4" placeholder="Describa el diagnóstico realizado..."></textarea>
+        </div>
+
+        <!-- Botones -->
+        <div class="text-end mt-4">
+            <button type="submit" class="btn btn-zenta me-2">Guardar Diagnóstico</button>
+            <button type="reset" class="btn btn-negro">Limpiar</button>
+        </div>
+    </form>
+</div>
+<!-- Modal Mejorado para Buscar Ticket -->
+<div class="modal fade" id="modalBuscarTicket" tabindex="-1" aria-labelledby="modalBuscarTicketLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-white border-bottom">
+        <h5 class="modal-title zenta-titulo" id="modalBuscarTicketLabel">🔎 Buscar Ticket</h5>
+		
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Filtros -->
+        <form method="get" th:action="@{/diagnostico/buscar}">
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label class="zenta-label">N° Ticket:</label>
+              <input type="text" name="numero" class="form-control" placeholder="Ej: TCK-00123">
+            </div>
+            <div class="col-md-3">
+              <label class="zenta-label">Fecha:</label>
+              <input type="date" name="fecha" class="form-control">
+            </div>
+            <div class="col-md-3">
+              <label class="zenta-label">Prioridad:</label>
+              <select name="prioridad" class="form-select">
+                <option value="">-- Todas --</option>
+                <option>Alta</option>
+                <option>Media</option>
+                <option>Baja</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="zenta-label">Estado:</label>
+              <select name="estado" class="form-select">
+                <option value="">-- Todos --</option>
+                <option>Pendiente</option>
+                <option>En proceso</option>
+                <option>Finalizado</option>
+              </select>
+            </div>
+          </div>
+          <div class="text-end mb-3">
+            <button type="submit" class="btn btn-zenta"><i class="bi bi-search"></i> Buscar</button>
+          </div>
+        </form>
+
+        <!-- Resultados -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-dark">
+              <tr>
+                <th>N° Ticket</th>
+                <th>Prioridad</th>
+                <th>Error</th>
+                <th>Responsable</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            
+			<tbody>
+				<tr th:each="t : ${listaTickets}">
+				    <td th:text="${t.numero}">TCK-0001</td>
+				    <td th:text="${t.prioridad}">Alta</td>
+				    <td th:text="${t.error}">Error X</td>
+				    <td>
+				        <span th:if="${t.responsable != null}" th:text="${t.responsable.nombre + ' ' + t.responsable.apellido}">Responsable</span>
+				        <span th:if="${t.responsable == null}">Sin asignar</span>
+				    </td>
+				    <td th:text="${#temporals.format(t.fechaRegistro, 'dd/MM/yyyy HH:mm')}">01/07/2025 10:30</td>
+				    <td th:text="${t.estado != null ? t.estado : 'NULO'}">Pendiente</td>
+				    <td>
+				        <a th:href="@{/diagnostico/nuevo/{id}(id=${t.id})}" class="btn btn-zenta btn-sm">
+				            <i class="bi bi-check-circle"></i> Seleccionar
+				        </a>
+				    </td>
+				</tr>
+
+			  <tr th:if="${#lists.isEmpty(listaTickets)}">
+			    <td colspan="7" class="text-center">No se encontraron resultados.</td>
+			  </tr>
+			</tbody>
+
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-white">
+        <button type="button" class="btn btn-negro" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</body>
+</html>

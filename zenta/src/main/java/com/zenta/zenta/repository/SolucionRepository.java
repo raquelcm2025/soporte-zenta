@@ -1,0 +1,18 @@
+package com.zenta.zenta.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.zenta.zenta.entity.Diagnostico;
+import com.zenta.zenta.entity.Solucion;
+import com.zenta.zenta.entity.Ticket;
+
+public interface SolucionRepository extends JpaRepository<Solucion, Integer> {
+	
+    Solucion findByDiagnostico(Diagnostico diagnostico);
+
+    List<Solucion> findByTicket(Ticket ticket);
+    List<Solucion> findByTicket_Estado(String estado);
+
+}

@@ -1,0 +1,5 @@
+package com.zenta.zenta.repository;
+
+public class InformeRepository {
+
+}

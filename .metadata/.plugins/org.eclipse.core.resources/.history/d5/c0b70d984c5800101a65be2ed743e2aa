@@ -1,0 +1,97 @@
+package com.zenta.zenta.entity;
+
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "soluciones")
+public class Solucion {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String descripcionSolucion;
+
+    private LocalDateTime fechaRegistro;
+
+    @ManyToOne
+    @JoinColumn(name = "ticket_id")
+    private Ticket ticket;
+
+    @ManyToOne
+    @JoinColumn(name = "diagnostico_id")
+    private Diagnostico diagnostico;
+
+    @ManyToOne
+    @JoinColumn(name = "observacion_id")
+    private Observacion observacion;
+
+    @ManyToOne
+    @JoinColumn(name = "responsable_id")
+    private User responsable;	
+
+    @PrePersist
+    public void asignarFechaRegistro() {
+        fechaRegistro = LocalDateTime.now();
+    }
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getDescripcionSolucion() {
+		return descripcionSolucion;
+	}
+
+	public void setDescripcionSolucion(String descripcionSolucion) {
+		this.descripcionSolucion = descripcionSolucion;
+	}
+
+	public LocalDateTime getFechaRegistro() {
+		return fechaRegistro;
+	}
+
+	public void setFechaRegistro(LocalDateTime fechaRegistro) {
+		this.fechaRegistro = fechaRegistro;
+	}
+
+	public Ticket getTicket() {
+		return ticket;
+	}
+
+	public void setTicket(Ticket ticket) {
+		this.ticket = ticket;
+	}
+
+	public Diagnostico getDiagnostico() {
+		return diagnostico;
+	}
+
+	public void setDiagnostico(Diagnostico diagnostico) {
+		this.diagnostico = diagnostico;
+	}
+
+	public Observacion getObservacion() {
+		return observacion;
+	}
+
+	public void setObservacion(Observacion observacion) {
+		this.observacion = observacion;
+	}
+
+	public User getResponsable() {
+		return responsable;
+	}
+
+	public void setResponsable(Usuario responsable) {
+		this.responsable = responsable;
+	}
+
+
+}

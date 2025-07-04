@@ -1,0 +1,66 @@
+package com.zenta.zenta.controller;
+
+import com.zenta.zenta.entity.*;
+import com.zenta.zenta.services.*;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@RequestMapping("/informe")
+public class InformeController {
+
+    @Autowired
+    private InformeService informeService;
+
+    @Autowired
+    private TicketService ticketService;
+
+    @Autowired
+    private DiagnosticoService diagnosticoService;
+
+    @Autowired
+    private ObservacionService observacionService;
+
+    @Autowired
+    private SolucionService solucionService;
+
+    @Autowired
+    private UserServices userService;
+
+    @GetMapping("/nuevo/{id}")
+    public String mostrarFormularioInforme(@PathVariable("id") Integer ticketId, Model model, HttpSession session) {
+        Ticket ticket = ticketService.obtenerPorId(ticketId);
+        Diagnostico diag = diagnosticoService.obtenerPorTicket(ticket);
+        Observacion obs = observacionService.obtenerPorDiagnostico(diag);
+        Solucion sol = solucionService.obtenerPorTicket(ticket);
+
+        User responsable = (User) session.getAttribute("usuarioLogueado");
+
+        Informe informe = new Informe();
+        informe.setCodigoInforme(String.valueOf((int)(Math.random()*90000 + 10000))); // Código de 5 dígitos
+        informe.setTicket(ticket);
+        informe.setDiagnostico(diag);
+        informe.setObservacion(obs);
+        informe.setSolucion(sol);
+        informe.setResponsable(responsable);
+
+        model.addAttribute("informe", informe);
+        return "informe"; 
+    }
+
+    @PostMapping("/guardar")
+    public String guardarInforme(@ModelAttribute Informe informe, HttpSession session) {
+        User responsable = (User) session.getAttribute("usuarioLogueado");
+
+        if (responsable != null) {
+            User completo = userService.obtenerPorId(responsable.getId());
+            informe.setResponsable(completo);
+        }
+
+        informeService.guardar(informe);
+        return "redirect:/";
+    }
+}

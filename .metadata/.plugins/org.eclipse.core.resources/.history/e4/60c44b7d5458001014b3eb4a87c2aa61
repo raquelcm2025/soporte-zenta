@@ -1,0 +1,12 @@
+package com.zenta.zenta.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class IniciarsesionController {
+	@GetMapping("/iniciarsesion")
+	public String iniciarsesion() {
+		return "iniciarsesion";
+	}
+}

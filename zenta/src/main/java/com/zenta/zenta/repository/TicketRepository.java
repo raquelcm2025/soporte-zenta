@@ -1,0 +1,24 @@
+package com.zenta.zenta.repository;
+
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.zenta.zenta.entity.Ticket;
+
+public interface TicketRepository extends JpaRepository<Ticket, Integer> {
+	@Query("SELECT t FROM Ticket t " +
+	           "WHERE (:numero IS NULL OR t.numero LIKE %:numero%) " +
+	           "AND (:prioridad IS NULL OR t.prioridad = :prioridad) " +
+	           "AND (:estado IS NULL OR t.estado = :estado) " +
+	           "AND (:fecha IS NULL OR DATE(t.fechaRegistro) = :fecha)")
+	    List<Ticket> filtrarTickets(@Param("numero") String numero,
+	                                @Param("prioridad") String prioridad,
+	                                @Param("estado") String estado,
+	                                @Param("fecha") LocalDate fecha);
+
+}

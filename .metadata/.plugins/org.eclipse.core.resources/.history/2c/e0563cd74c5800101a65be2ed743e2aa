@@ -1,0 +1,55 @@
+package com.sistema.zenta.service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Service;
+
+import com.sistema.zenta.model.Diagnostico;
+import com.sistema.zenta.model.Ticket;
+import com.sistema.zenta.repository.DiagnosticoRepository;
+
+@Service
+public class DiagnosticoService  {
+
+    @Autowired
+    private DiagnosticoRepository repo;
+
+    // Guardar o actualizar diagnóstico
+    public Diagnostico guardar(Diagnostico diagnostico) {
+        return repo.save(diagnostico);
+    }
+
+    // Obtener diagnóstico por ID
+    public Diagnostico obtenerPorId(Integer id) {
+        return repo.findById(id).orElse(null);
+    }
+
+    // Listar todos los diagnósticos (opcional si quieres método separado)
+    public List<Diagnostico> listar() {
+        return repo.findAll(); // Heredado de JpaRepository
+    }
+
+    // Filtrar diagnósticos con campos opcionales (para modal)
+    public List<Diagnostico> filtrarDiagnosticos(String numero, Boolean garantia, LocalDateTime fecha) {
+        return repo.filtrarDiagnosticos(numero, garantia, fecha);
+    }
+
+    // Obtener diagnóstico por ticket
+    public Diagnostico obtenerPorTicket(Ticket ticket) {
+        return repo.findByTicket(ticket);
+    }
+    
+    public List<Diagnostico> obtenerTicketsConDiagnosticoYObservacion() {
+        return repo.findAll()
+                .stream()
+                .filter(d -> d.getObservacion() != null)
+                .collect(Collectors.toList());
+    }
+
+
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soporte Técnico</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Estilos personalizados -->
+  <!-- <link rel="stylesheet" th:href="@{/css/estilos.css}"> -->
+  <link rel="stylesheet" href="css/estilos.css">
+
+  
+</head>
+<body>
+
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-md-4">
+        <div class="card border-0">
+          <div class="card-body">
+            <div class="logo-sesion">
+            <img src="img/zenta.svg" alt="">
+            </div>
+			
+			<form action="/login" method="post">
+			  <!-- Usuario -->
+			  <div class="mb-3">
+			     <label for="username" class="form-label">Correo electrónico</label>
+			     <input type="text" name="username" class="form-control" id="email" placeholder="correo@gmail.com" required>
+			     <div id="emailError" class="text-danger mt-1" style="display: none;">
+			       Ingresa un correo electrónico válido
+			     </div>
+			   </div>
+
+			  <!-- Contraseña -->
+			  <div class="mb-3 position-relative">
+			    <label for="password" class="form-label">Contraseña</label>
+			    <div class="input-group">
+			      <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+			      <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+			        <i class="bi bi-eye-slash" id="eyeIcon"></i>
+			      </span>
+			    </div>
+			  </div>
+
+			  <!-- Botón -->
+			  <div class="d-grid mt-4 mb-2">
+			    <button type="submit" class="btn btn-sistema">Iniciar sesión</button>
+			  </div>
+
+			  <!-- Mensaje de error si login falla -->
+			  <div th:if="${param.error}">
+			    <p class="text-danger mt-2 text-center">Usuario o contraseña incorrectos.</p>
+			  </div>
+			</form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+	document.addEventListener("DOMContentLoaded", () => {
+	  const togglePassword = document.getElementById('togglePassword');
+	  const passwordInput = document.getElementById('password');
+	  const eyeIcon = document.getElementById('eyeIcon');
+	  const form = document.querySelector("form");
+	  const emailInput = document.getElementById("email");
+	  const emailError = document.getElementById("emailError");
+
+	  togglePassword.addEventListener('click', () => {
+	    const isPassword = passwordInput.type === 'password';
+	    passwordInput.type = isPassword ? 'text' : 'password';
+	    eyeIcon.classList.toggle('bi-eye');
+	    eyeIcon.classList.toggle('bi-eye-slash');
+	  });
+
+	  form.addEventListener("submit", function (e) {
+	    const email = emailInput.value.trim();
+	    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+	    if (!gmailRegex.test(email)) {
+	      e.preventDefault();
+	      emailError.style.display = "block";
+	      emailInput.classList.add("is-invalid");
+	    } else {
+	      emailError.style.display = "none";
+	      emailInput.classList.remove("is-invalid");
+	    }
+	  });
+	});
+
+  </script>
+
+
+</body>
+</html>

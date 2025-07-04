@@ -1,0 +1,81 @@
+package com.zenta.zenta.services;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.zenta.zenta.entity.TipoDocumento;
+import com.zenta.zenta.entity.User;
+import com.zenta.zenta.repository.UserRepository;
+
+@Service
+public class UserServices {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private EmailServices emailService;
+
+    public List<User> listarTodos() {
+        return userRepository.findAll();
+    }
+
+    public void registrar(User bean) {
+        userRepository.save(bean);
+        emailService.enviarCorreoBienvenida(bean);
+    }
+
+    public void actualizar(User bean) {
+        userRepository.save(bean);
+    }
+
+    public void eliminar(Integer id) {
+        userRepository.deleteById(id);
+    }
+
+    public User buscarPorID(Integer id) {
+        return userRepository.findById(id).orElse(null);
+    }
+    
+    public User obtenerPorId(Integer id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    
+    public User obtenerPorId(Integer id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+  //  public List<User> buscarPorNombreYRol(String nombre, String rol) {
+    //    String nombreFiltro = (nombre == null || nombre.trim().isEmpty()) ? null : nombre.trim();
+      //  String rolFiltro = (rol == null || rol.trim().isEmpty()) ? null : rol.trim();
+       // return userRepository.buscarPorNombreYRol(nombreFiltro, rolFiltro);
+   // }
+
+    public boolean existsByNumDocumento(String numDocumento) {
+        return userRepository.existsByNumDocumento(numDocumento);
+    }
+
+    public void eliminarPorId(Integer id) {
+        userRepository.deleteById(id);
+    }
+
+    public List<User> buscarPorFiltros(String nombre, String rol, String tipoDoc) {
+        // Normaliza filtros
+        String nombreVal = (nombre == null || nombre.isBlank()) ? "" : nombre.trim();
+        String rolVal = (rol == null || rol.isBlank()) ? null : rol.trim();
+        TipoDocumento tipoDocumento = null;
+
+        if (tipoDoc != null && !tipoDoc.isBlank()) {
+            try {
+                tipoDocumento = TipoDocumento.valueOf(tipoDoc.trim()); // String → Enum
+            } catch (IllegalArgumentException e) {
+                tipoDocumento = null; // Si es inválido, no se aplica el filtro
+            }
+        }
+
+        return userRepository.findByNombreContainingIgnoreCaseAndRolNombreOrAll(nombreVal, rolVal, tipoDocumento);
+    }
+}

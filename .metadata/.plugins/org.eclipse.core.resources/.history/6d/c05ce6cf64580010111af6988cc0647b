@@ -1,0 +1,82 @@
+package com.zenta.zenta.controller;
+
+import com.zenta.zenta.entity.*;
+import com.zenta.zenta.services.*;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Controller
+@RequestMapping("/solucion")
+public class SolucionController {
+
+    @Autowired
+    private SolucionService solucionService;
+
+    @Autowired
+    private TicketService ticketService;
+
+    @Autowired
+    private DiagnosticoService diagnosticoService;
+
+    @Autowired
+    private ObservacionService observacionService;
+    @Autowired
+    private UserServices userService;
+
+
+    @GetMapping("/nuevo")
+    public String mostrarFormularioVacio(Model model) {
+        model.addAttribute("solucion", new Solucion());
+        model.addAttribute("listaSolucionables", diagnosticoService.obtenerTicketsConDiagnosticoYObservacion());
+        return "solucion_form";
+    }
+
+    @GetMapping("/nuevo/{id}")
+    public String mostrarFormularioConDatos(@PathVariable("id") Integer idTicket, Model model, HttpSession session) {
+        Ticket ticket = ticketService.obtenerPorId(idTicket);
+        List<Diagnostico> listaDiag = diagnosticoService.obtenerPorTicket(ticket);
+        Diagnostico diag = listaDiag.get(0); // o elige el último si es necesario
+        Observacion obs = observacionService.obtenerPorDiagnostico(diag);
+        User soporte = (User) session.getAttribute("usuarioLogueado");
+
+        Solucion solucion = new Solucion();
+        solucion.setTicket(ticket);
+        solucion.setDiagnostico(diag);
+        solucion.setObservacion(obs);
+        solucion.setResponsable(soporte);
+
+        model.addAttribute("solucion", solucion);
+        model.addAttribute("listaSolucionables", diagnosticoService.obtenerTicketsConDiagnosticoYObservacion());
+        return "solucion_form";
+    }
+
+    @PostMapping("/guardar")
+    public String guardarSolucion(@ModelAttribute Solucion solucion, HttpSession session) {
+        User responsableSession = (User) session.getAttribute("usuarioLogueado");
+
+        if (responsableSession != null) {
+            // Asegurarse que el usuario esté completo desde la BD
+        	User responsableCompleto = userService.obtenerPorId(responsableSession.getId());
+
+            solucion.setResponsable(responsableCompleto);
+        }
+
+        Ticket ticket = solucion.getTicket();
+        if (ticket != null) {
+            Ticket ticketCompleto = ticketService.obtenerPorId(ticket.getId());
+            ticketCompleto.setEstado("Concluido");
+            ticketService.guardar(ticketCompleto);
+            solucion.setTicket(ticketCompleto);
+        }
+
+        solucionService.guardar(solucion);
+        return "redirect:/";
+    }
+
+}
+

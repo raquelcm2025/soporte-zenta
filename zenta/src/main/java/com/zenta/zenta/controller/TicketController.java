@@ -1,0 +1,54 @@
+package com.zenta.zenta.controller;
+
+import com.zenta.zenta.entity.Ticket;
+import com.zenta.zenta.entity.User;
+import com.zenta.zenta.services.TicketService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
+
+@Controller
+@RequestMapping("/ticket")
+public class TicketController {
+
+    @Autowired
+    private TicketService ticketService;
+
+    @GetMapping("/nuevo")
+    public String mostrarFormulario(Model model, HttpSession session) {
+        Ticket ticket = new Ticket();
+
+        // Número automático
+        String numeroGenerado = ticketService.generarNumeroTicket();
+        ticket.setNumero(numeroGenerado);
+
+        // Obtener usuario logueado desde la sesión
+        User soporte = (User) session.getAttribute("usuarioLogueado");
+
+        if (soporte == null) {
+            return "redirect:/login";  // si no hay usuario, redirige
+        }
+
+        // Asignar responsable
+        ticket.setResponsable(soporte);
+
+        model.addAttribute("ticket", ticket);
+        return "registrar_ticket";
+    }
+
+    @PostMapping("/guardar")
+    public String guardar(@ModelAttribute Ticket ticket, HttpSession session) {
+    	User soporte = (User) session.getAttribute("usuarioLogueado");
+        ticket.setEstado("Pendiente");
+
+        if (soporte != null) {
+            ticket.setResponsable(soporte);
+        }
+
+        ticketService.guardar(ticket);
+        return "redirect:/"; 
+    }
+
+}

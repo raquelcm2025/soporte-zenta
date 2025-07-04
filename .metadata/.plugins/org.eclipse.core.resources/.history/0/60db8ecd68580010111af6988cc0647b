@@ -1,0 +1,43 @@
+package com.zenta.zenta.entity;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+public class Informe {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String codigoInforme;
+
+    private LocalDate fechaInforme;
+
+    @ManyToOne
+    @JoinColumn(name = "ticket_id")
+    private Ticket ticket;
+
+    @ManyToOne
+    @JoinColumn(name = "diagnostico_id")
+    private Diagnostico diagnostico;
+
+    @ManyToOne
+    @JoinColumn(name = "observacion_id")
+    private Observacion observacion;
+
+    @ManyToOne
+    @JoinColumn(name = "solucion_id")
+    private Solucion solucion;
+
+    @ManyToOne
+    @JoinColumn(name = "responsable_id")
+    private User responsable;
+
+    @PrePersist
+    public void prePersist() {
+        fechaInforme = LocalDate.now();
+    }
+
+    // Getters y Setters
+}

@@ -1,0 +1,67 @@
+package com.sistema.zenta.controller;
+
+import com.sistema.zenta.model.*;
+import com.sistema.zenta.service.*;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Controller
+@RequestMapping("/solucion")
+public class SolucionController {
+
+    @Autowired
+    private SolucionService solucionService;
+
+    @Autowired
+    private TicketService ticketService;
+
+    @Autowired
+    private DiagnosticoService diagnosticoService;
+
+    @Autowired
+    private ObservacionService observacionService;
+
+    @GetMapping("/nuevo")
+    public String mostrarFormularioVacio(Model model) {
+        model.addAttribute("solucion", new Solucion());
+        model.addAttribute("listaSolucionables", diagnosticoService.obtenerTicketsConDiagnosticoYObservacion());
+        return "solucion_form";
+    }
+
+    @GetMapping("/nuevo/{id}")
+    public String mostrarFormularioConDatos(@PathVariable("id") Integer idTicket, Model model, HttpSession session) {
+        Ticket ticket = ticketService.obtenerPorId(idTicket);
+        Diagnostico diag = diagnosticoService.obtenerPorTicket(ticket);
+        Observacion obs = observacionService.obtenerPorDiagnostico(diag);
+        Usuario soporte = (Usuario) session.getAttribute("usuarioLogueado");
+
+        Solucion solucion = new Solucion();
+        solucion.setTicket(ticket);
+        solucion.setDiagnostico(diag);
+        solucion.setObservacion(obs);
+        solucion.setResponsable(soporte);
+
+        model.addAttribute("solucion", solucion);
+        model.addAttribute("listaSolucionables", diagnosticoService.obtenerTicketsConDiagnosticoYObservacion());
+        return "solucion_form";
+    }
+
+    @PostMapping("/guardar")
+    public String guardarSolucion(@ModelAttribute Solucion solucion) {
+        Ticket ticket = solucion.getTicket();
+
+        if (ticket != null) {
+            ticket.setEstado("Concluido");
+            ticketService.guardar(ticket);
+        }
+
+        solucionService.guardar(solucion);
+        return "redirect:/dashboard";
+    }
+}
+

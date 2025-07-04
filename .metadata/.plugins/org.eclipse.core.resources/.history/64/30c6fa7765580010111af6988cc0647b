@@ -1,0 +1,5 @@
+package com.zenta.zenta.entity;
+
+public class Informe {
+
+}

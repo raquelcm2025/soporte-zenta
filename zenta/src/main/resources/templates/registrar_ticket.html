@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Registrar Ticket - ZENTA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: "Raleway", sans-serif;
+		}
+	   .zenta-label {
+	       font-weight: bold;
+	       color: #000;
+	   }
+
+	   .readonly-field {
+	       background-color: #dee2e6;
+	       color: #000;
+	   }
+
+	   .btn-zenta {
+	       background-color: #e83e8c;
+	       color: white;
+	       font-weight: bold;
+	   }
+
+	   .btn-negro {
+	       background-color: #000000;
+	       color: white;
+	       font-weight: bold;
+	   }
+
+	   .zenta-titulo {
+	       color: #e83e8c;
+	       font-weight: bold;
+	   }
+	   
+	   
+	 </style>
+</head>
+<body class="bg-white text-dark">
+	
+	
+
+	<div class="container mt-5 p-4 border rounded shadow bg-white" style="max-width: 700px;">
+	    <h4 class="mb-4 zenta-titulo text-center"><i class="bi bi-ticket-detailed-fill"></i> Generar Ticket</h4>
+
+		<form th:action="@{/ticket/guardar}" th:object="${ticket}" method="post">
+		<div class="row mb-3">
+		    <div class="col-md-6">
+		        <label class="zenta-label">N° de Ticket:</label>
+		        <input type="text" th:field="*{numero}" class="form-control readonly-field" readonly>
+		    </div>
+		    <div class="col-md-6">
+		        <label class="zenta-label">Fecha y Hora:</label>
+		        <input type="text" class="form-control readonly-field" 
+		               th:value="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}" readonly>
+		    </div>
+		</div>
+
+
+		<div class="row mb-3">
+		    <div class="col-md-6">
+		        <label class="zenta-label">Responsable:</label>
+
+		        <!-- Campo visible solo  nombre del responsable -->
+		        <input type="text" class="form-control readonly-field"
+		               th:value="${ticket.responsable != null ? ticket.responsable.nombre + ' ' + ticket.responsable.apellido : ''}" 
+		               readonly>
+
+		        <!-- Campo oculto para guardar el ID del responsable -->
+		        <input type="hidden" th:field="*{responsable.id}" />
+		    </div>
+		
+		    <div class="col-md-6">
+		        <label class="zenta-label">Prioridad:</label>
+		        <select th:field="*{prioridad}" class="form-select">
+		            <option value="ALTA">Alta</option>
+		            <option value="MEDIA">Media</option>
+		            <option value="BAJA">Baja</option>
+		        </select>
+		    </div>
+		</div>
+		<div class="mb-3">
+		  <label for="error" class="zenta-label">Descripción del error:</label>
+		  <textarea th:field="*{error}" class="form-control" rows="3" placeholder="Describe el error..."></textarea>
+		</div>
+		
+		<input type="hidden" th:field="*{estado}" value="PENDIENTE" />
+
+
+		<div class="text-end mt-4">
+			
+		            <button type="submit" class="btn btn-zenta me-2">Guardar</button>
+		            <button type="reset" class="btn btn-negro">Limpiar</button>
+		        </div>
+    </form>
+</div>
+
+</body>
+</html>
